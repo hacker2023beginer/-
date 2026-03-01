@@ -36,6 +36,7 @@ public class Main extends Application {
         Button encodeButton = new Button("Зашифровать");
         Button decodeButton = new Button("Дешифровать");
         Button readFileButton = new Button("Прочитать из файла");
+        Button saveFileButton = new Button("Сохранить в файл");
 
         KeyValidator validator = new KeyValidator();
 
@@ -152,10 +153,36 @@ public class Main extends Application {
             }
         });
 
+        saveFileButton.setOnAction(e -> {
+            try {
+                String result = outputArea.getText();
+
+                if (result.isEmpty()) {
+                    showAlert("Ошибка", "Нет данных для сохранения");
+                    return;
+                }
+
+                javafx.stage.FileChooser chooser = new javafx.stage.FileChooser();
+                chooser.setTitle("Сохранить результат");
+                chooser.getExtensionFilters().add(
+                        new javafx.stage.FileChooser.ExtensionFilter("Текстовые файлы", "*.txt")
+                );
+
+                java.io.File file = chooser.showSaveDialog(primaryStage);
+                if (file == null) return;
+
+                java.nio.file.Files.writeString(file.toPath(), result);
+
+            } catch (Exception ex) {
+                showAlert("Ошибка сохранения файла", ex.getMessage());
+            }
+        });
+
+
         HBox topBox = new HBox(10,
                 new Label("Ключ:"), keyField,
                 new Label("Метод:"), methodBox,
-                encodeButton, decodeButton, readFileButton
+                encodeButton, decodeButton, readFileButton, saveFileButton
         );
         topBox.setPadding(new Insets(10));
 
