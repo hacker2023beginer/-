@@ -34,6 +34,7 @@ public class Main extends Application {
 
         Button encodeButton = new Button("Зашифровать");
         Button decodeButton = new Button("Дешифровать");
+        Button readFileButton = new Button("Прочитать из файла");
 
         // --- КНОПКА ШИФРОВАНИЯ ---
         encodeButton.setOnAction(e -> {
@@ -107,11 +108,32 @@ public class Main extends Application {
             }
         });
 
+        readFileButton.setOnAction(e -> {
+            try {
+                javafx.stage.FileChooser chooser = new javafx.stage.FileChooser();
+                chooser.setTitle("Выберите файл для чтения");
+                chooser.getExtensionFilters().add(
+                        new javafx.stage.FileChooser.ExtensionFilter("Текстовые файлы", "*.txt")
+                );
+
+                java.io.File file = chooser.showOpenDialog(primaryStage);
+                if (file == null) return;
+
+                String content = java.nio.file.Files.readString(file.toPath());
+
+                // вставляем в поле исходного текста
+                inputArea.setText(content);
+
+            } catch (Exception ex) {
+                showAlert("Ошибка чтения файла", ex.getMessage());
+            }
+        });
+
 
         HBox topBox = new HBox(10,
                 new Label("Ключ:"), keyField,
                 new Label("Метод:"), methodBox,
-                encodeButton, decodeButton
+                encodeButton, decodeButton, readFileButton
         );
         topBox.setPadding(new Insets(10));
 
