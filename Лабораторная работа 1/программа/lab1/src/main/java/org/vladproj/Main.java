@@ -9,6 +9,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.vladproj.alqorithm.StolbzoviyMethod;
 import org.vladproj.alqorithm.Vizhener;
+import org.vladproj.validator.KeyValidator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,11 +37,13 @@ public class Main extends Application {
         Button decodeButton = new Button("Дешифровать");
         Button readFileButton = new Button("Прочитать из файла");
 
+        KeyValidator validator = new KeyValidator();
+
         // --- КНОПКА ШИФРОВАНИЯ ---
         encodeButton.setOnAction(e -> {
             try {
-                String original = inputArea.getText();
-                String key = keyField.getText();
+                String original = inputArea.getText().toUpperCase(); // текст в верхний регистр
+                String key = keyField.getText().toUpperCase();       // ключ в верхний регистр
                 String method = methodBox.getValue();
 
                 if (original.isEmpty() || key.isEmpty()) {
@@ -53,16 +56,27 @@ public class Main extends Application {
                 String result;
 
                 if (method.startsWith("Виженер")) {
+                    key = validator.validateRu(key);
+                    if (key.isEmpty()) {
+                        showAlert("Ошибка", "Ключ не содержит допустимых русских букв");
+                        return;
+                    }
+                    keyField.setText(key);
                     Vizhener v = new Vizhener(key);
                     result = v.encode(text);
                 } else {
-                    int ost = text.length() % key.length() == 0 ? 0 : 1;
-                    int rows = text.length() / key.length() + ost;
-                    Character[][] table = new Character[rows][key.length()];
+                    key = validator.validateEn(key);
+                    if (key.isEmpty()) {
+                        showAlert("Ошибка", "Ключ не содержит допустимых английских букв");
+                        return;
+                    }
+                    keyField.setText(key);
+                    int cols = key.length();
+                    int rows = (int) Math.ceil((double) text.length() / cols);
+                    Character[][] table = new Character[rows][cols];
                     StolbzoviyMethod s = new StolbzoviyMethod(table, key);
                     result = s.encode(text);
                 }
-
 
                 result = restoreSpaces(result, spaces);
                 outputArea.setText(result);
@@ -72,12 +86,11 @@ public class Main extends Application {
             }
         });
 
-
         // --- КНОПКА ДЕШИФРОВАНИЯ ---
         decodeButton.setOnAction(e -> {
             try {
-                String original = inputArea.getText();
-                String key = keyField.getText();
+                String original = inputArea.getText().toUpperCase();
+                String key = keyField.getText().toUpperCase();
                 String method = methodBox.getValue();
 
                 if (original.isEmpty() || key.isEmpty()) {
@@ -90,14 +103,26 @@ public class Main extends Application {
                 String result;
 
                 if (method.startsWith("Виженер")) {
+                    key = validator.validateRu(key);
+                    if (key.isEmpty()) {
+                        showAlert("Ошибка", "Ключ не содержит допустимых русских букв");
+                        return;
+                    }
+                    keyField.setText(key);
                     Vizhener v = new Vizhener(key);
                     result = v.decode(text);
                 } else {
-                    int ost = text.length() % key.length() == 0 ? 0 : 1;
-                    int rows = text.length() / key.length() + ost;
-                    Character[][] table = new Character[rows][key.length()];
+                    key = validator.validateEn(key);
+                    if (key.isEmpty()) {
+                        showAlert("Ошибка", "Ключ не содержит допустимых английских букв");
+                        return;
+                    }
+                    keyField.setText(key);
+                    int cols = key.length();
+                    int rows = (int) Math.ceil((double) text.length() / cols);
+                    Character[][] table = new Character[rows][cols];
                     StolbzoviyMethod s = new StolbzoviyMethod(table, key);
-                    result = s.decode(text);
+                    result = s.decode(text);  // важно именно decode!
                 }
 
                 result = restoreSpaces(result, spaces);
@@ -120,15 +145,12 @@ public class Main extends Application {
                 if (file == null) return;
 
                 String content = java.nio.file.Files.readString(file.toPath());
-
-                // вставляем в поле исходного текста
                 inputArea.setText(content);
 
             } catch (Exception ex) {
                 showAlert("Ошибка чтения файла", ex.getMessage());
             }
         });
-
 
         HBox topBox = new HBox(10,
                 new Label("Ключ:"), keyField,
@@ -175,7 +197,6 @@ public class Main extends Application {
         }
         return sb.toString();
     }
-
 
     private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR, message, ButtonType.OK);

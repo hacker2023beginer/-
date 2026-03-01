@@ -54,7 +54,7 @@ public class StolbzoviyMethod {
 
     public String decode(String cipher) {
         int cols = key.length();
-        int rows = textTable.length;
+        int rows = (int) Math.ceil((double)cipher.length() / cols);
 
         int[] order = keyOrder();
 
@@ -62,6 +62,8 @@ public class StolbzoviyMethod {
 
         int cipherIndex = 0;
 
+        // Считаем сколько символов в каждой колонке
+        int fullColumns = cipher.length() % cols;
         for (int priority = 1; priority <= cols; priority++) {
             int col = 0;
             for (int i = 0; i < cols; i++) {
@@ -71,15 +73,17 @@ public class StolbzoviyMethod {
                 }
             }
 
-            for (int r = 0; r < rows; r++) {
-                if (cipherIndex < cipher.length()) {
-                    table[r][col] = cipher.charAt(cipherIndex++);
-                } else {
-                    table[r][col] = null;
-                }
+            int colRows = rows;
+            if (fullColumns != 0 && col >= fullColumns) {
+                colRows--; // неполная колонка
+            }
+
+            for (int r = 0; r < colRows; r++) {
+                table[r][col] = cipher.charAt(cipherIndex++);
             }
         }
 
+        // Читаем по строкам
         StringBuilder result = new StringBuilder();
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
