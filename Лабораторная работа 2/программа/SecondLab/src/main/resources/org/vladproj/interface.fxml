@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TextArea?>
+<VBox spacing="10"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="org.vladproj.UIController"
+      alignment="TOP_CENTER">
+
+    <Label text="Начальное состояние регистра (32 бита)"/>
+
+    <TextField fx:id="seedField"/>
+
+    <Label text="Введите ровно 32 бита (0 и 1)"/>
+
+    <Button text="Выбрать файл"
+            onAction="#openFile"/>
+
+    <Button fx:id="encryptButton"
+            text="Зашифровать / Расшифровать"
+            onAction="#encrypt"
+            disable="true"/>
+
+    <Label fx:id="fileLabel"
+           text="Файл не выбран"/>
+
+    <Label text="Исходный файл (биты)"/>
+    <TextArea fx:id="originalArea"/>
+
+    <Label text="Ключевая последовательность"/>
+    <TextArea fx:id="keyArea"/>
+
+    <Label text="Результат (биты)"/>
+    <TextArea fx:id="encryptedArea"/>
+
+</VBox>
