@@ -14,7 +14,10 @@ public class LFSR {
         int output = (register >>> 31) & 1; // старший разряд
 
         // вычисляем новый бит по многочлену x^32 + x^28 + x^27 + x + 1
-        int newBit = ((register >>> 31) ^ (register >>> 4) ^ (register >>> 5) ^ (register >>> 0)) & 1;
+        int newBit = ((register >>> 31) ^
+                (register >>> 27) ^
+                (register >>> 26) ^
+                (register >>> 0)) & 1;
 
         // сдвиг влево
         register = (register << 1) | newBit;
